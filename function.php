@@ -15,6 +15,7 @@ class pm25
     }
 
     function save_data(){
+        date_default_timezone_set('Asia/Taipei');
         echo "上次更新時間： " . date("Y-m-d h:i:sa")."<br>";
 
         $data=self::get_data();
@@ -125,6 +126,7 @@ class pm25
         }
 
         if(empty($_GET['date'])){
+            date_default_timezone_set('Asia/Taipei');
             $date=date("Y-m-d");
 
         }else{
@@ -132,11 +134,14 @@ class pm25
         }
 
         //$date=date("Y-m-d");
-        for($i=1;$i<24;$i++){
+        for($i=0;$i<24;$i++){
             if($i>9){
                 $time=" ".$i.":00";
 
-            }else{
+            }else if($i==0){
+                $time=" 00:00";
+            }
+            else{
                 $time=" 0".$i.":00";
             }
             $perhour[$i]=$date.$time;
@@ -146,7 +151,7 @@ class pm25
 
         foreach ($this->data as $data) {
             //print_r($data);
-            for($i=1;$i<=24;$i++) {
+            for($i=0;$i<=24;$i++) {
                 if ($data['time'] == $perhour[$i] && $data['site'] == $site) {
                     /*
                     echo $data['site'] . "_";
