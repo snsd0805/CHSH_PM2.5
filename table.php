@@ -4,6 +4,8 @@ $data=new pm25();
 $pm25=$data->perhour_data();
 
 ?>
+<meta charset="UTF-8">
+<h3><?php echo date("Y年m月d日")." <BR>彰化地區當日PM2.5濃度分析"; ?></h3>
 <p><canvas id="canvas"></canvas></p>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.js" integrity="sha256-N2Q5nbMunuogdOHfjiuzPsBMhoB80TFONAfO7MLhac0=" crossorigin="anonymous"></script><script>
     var lineChartData = {
