@@ -117,7 +117,21 @@ class pm25
 
     function perhour_data(){
 
-        $date=date("Y-m-d");
+        if(empty($_GET['site'])){
+            $site="彰化";
+
+        }else{
+            $site=$_GET['site'];
+        }
+
+        if(empty($_GET['date'])){
+            $date=date("Y-m-d");
+
+        }else{
+            $date=$_GET['date'];
+        }
+
+        //$date=date("Y-m-d");
         for($i=1;$i<24;$i++){
             if($i>9){
                 $time=" ".$i.":00";
@@ -133,7 +147,7 @@ class pm25
         foreach ($this->data as $data) {
             //print_r($data);
             for($i=1;$i<=24;$i++) {
-                if ($data['time'] == $perhour[$i] && $data['site'] == "彰化") {
+                if ($data['time'] == $perhour[$i] && $data['site'] == $site) {
                     /*
                     echo $data['site'] . "_";
                     echo $data['county'] . "_";
