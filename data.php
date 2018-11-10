@@ -2,6 +2,6 @@
 <?php
 require ("function.php");
 $id=$_GET['id'];
-
-pm25::place_data($id);
+$data=new pm25();
+$data->place_data($id);
 ?>

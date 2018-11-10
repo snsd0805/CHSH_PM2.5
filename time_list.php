@@ -5,5 +5,6 @@ $id=$_GET['id'];
 
 header("refresh:600");
 
-pm25::time_list();
+$data=new pm25();
+$data->time_list();
 ?>

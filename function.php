@@ -1,27 +1,10 @@
 <?php
 class pm25
 {
-    static function connect(){
-        $db_ip="127.0.0.1";
-        $db_user="root";
-        $db_password="pomelo8911285";
-        $db_select="PM2.5";
-        $db_charset = "UTF8";
-
-        $DSN="mysql:host=$db_ip;dbname=$db_select;charset=$db_charset";
-
-        try{
-            $connect=new PDO($DSN,$db_user,$db_password);
-            $connect->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
-        }
-        catch(PDOException $e){
-            echo "連接失敗 ： " . $e->getMessage();
-        }
-        return $connect;
-    }
+    private $data;
 
     static function get_data(){
-            $handle = fopen('http://opendata.epa.gov.tw/ws/Data/ATM00625/?$format=json',"rb");
+        $handle = fopen('http://opendata.epa.gov.tw/ws/Data/ATM00625/?$format=json',"rb");
         $content = "";
         while (!feof($handle)) {
             $content .= fread($handle, 10000);
@@ -31,59 +14,7 @@ class pm25
         return $data;
     }
 
-    static function sql_data(){
-        $sql="SELECT * FROM `pm25_data`";
-        $result=self::connect()->query($sql);
-        return $result;
-    }
-
-    static function data_list(){
-        foreach (self::sql_data() as $data){
-            echo $data['county'];
-            echo $data['site']."&nbsp&nbsp&nbsp&nbsp";
-            echo $data['pm25']."&nbsp&nbsp&nbsp&nbsp";
-            echo $data['time']. "<br>";
-        }
-    }
-
-    static function time_list(){
-        $temp_time[0]="";
-        $temp=0;
-        foreach (self::sql_data() as $data) {
-            $find=0;
-            for($i=0;$i<=$temp;$i++) {
-                if ($data['time']==$temp_time[$i]){
-                    $find++;
-                }
-            }
-            if($find==0){
-                $temp++;
-                $temp_time[$temp]=$data['time'];
-                echo "<a href='time_data.php?time=" . $data['time'] . "'>" . $data['time'] . "</a><br>";
-            }
-        }
-    }
-
-    static function time_data($time){
-        foreach (self::sql_data() as $row){
-            if($row['time']==$time){
-                echo "<a href='data.php?id=" . $row['id'] . "'>" . $row['site'] . "</a><br>";
-            }
-        }
-    }
-
-    static function place_data($id){
-        foreach (self::sql_data() as $data) {
-            if($data['id']==$id) {
-                echo $data['site']. "<br>";
-                echo $data['county']. "<br>";
-                echo $data['pm25']."<br>";
-                echo $data['time']. "<br>";
-            }
-        }
-    }
-
-    static function save_data(){
+    function save_data(){
         echo "上次更新時間： " . date("Y-m-d h:i:sa")."<br>";
 
         $data=self::get_data();
@@ -109,6 +40,113 @@ class pm25
                 }
             }
         }
+    }
+
+    static function connect(){
+        $db_ip="127.0.0.1";
+        $db_user="root";
+        $db_password="pomelo8911285";
+        $db_select="PM2.5";
+        $db_charset = "UTF8";
+
+        $DSN="mysql:host=$db_ip;dbname=$db_select;charset=$db_charset";
+
+        try{
+            $connect=new PDO($DSN,$db_user,$db_password);
+            $connect->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
+        }
+        catch(PDOException $e){
+            echo "連接失敗 ： " . $e->getMessage();
+        }
+        return $connect;
+    }
+
+
+
+    function __construct(){
+        $sql="SELECT * FROM `pm25_data`";
+        $result=self::connect()->query($sql);
+        $this->data=$result;
+    }
+
+    function data_list(){
+        foreach ($this->data as $data){
+            echo $data['county'];
+            echo $data['site']."&nbsp&nbsp&nbsp&nbsp";
+            echo $data['pm25']."&nbsp&nbsp&nbsp&nbsp";
+            echo $data['time']. "<br>";
+        }
+    }
+
+    function time_list(){
+        $temp_time[0]="";
+        $temp=0;
+        foreach ($this->data as $data) {
+            $find=0;
+            for($i=0;$i<=$temp;$i++) {
+                if ($data['time']==$temp_time[$i]){
+                    $find++;
+                }
+            }
+            if($find==0){
+                $temp++;
+                $temp_time[$temp]=$data['time'];
+                echo "<a href='time_data.php?time=" . $data['time'] . "'>" . $data['time'] . "</a><br>";
+            }
+        }
+    }
+
+    function time_data($time){
+        foreach ($this->data as $row){
+            if($row['time']==$time){
+                echo "<a href='data.php?id=" . $row['id'] . "'>" . $row['site'] . "</a><br>";
+            }
+        }
+    }
+
+    function place_data($id){
+            foreach ($this->data as $data) {
+                if($data['id']==$id) {
+                    echo $data['site']. "<br>";
+                    echo $data['county']. "<br>";
+                    echo $data['pm25']."<br>";
+                    echo $data['time']. "<br>";
+                }
+            }
+    }
+
+    function perhour_data(){
+
+        $date=date("Y-m-d");
+        for($i=1;$i<24;$i++){
+            if($i>9){
+                $time=" ".$i.":00";
+
+            }else{
+                $time=" 0".$i.":00";
+            }
+            $perhour[$i]=$date.$time;
+            //echo $perhour[$i]."<br>";
+        }
+
+
+        foreach ($this->data as $data) {
+            //print_r($data);
+            for($i=1;$i<=24;$i++) {
+                if ($data['time'] == $perhour[$i] && $data['site'] == "彰化") {
+                    /*
+                    echo $data['site'] . "_";
+                    echo $data['county'] . "_";
+                    echo $data['pm25'] . "_";
+                    echo $data['time'] . "<br>";
+                    */
+
+                    $result[$i] = $data['pm25'];
+                    break;
+                }
+            }
+        }
+        return $result;
     }
 
 }

@@ -5,5 +5,6 @@ $id=$_GET['id'];
 
 header("refresh:600");
 
-pm25::save_data();
+$data=new pm25();
+$data->save_data();
 ?>

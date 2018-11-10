@@ -3,5 +3,6 @@
 <h1><a href="time_list.php">時間列表</a><br></h1>
 <?php
 require ("function.php");
-pm25::data_list();
+$data=new pm25();
+$data->data_list();
 ?>
